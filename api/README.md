@@ -35,4 +35,6 @@ Endpoints esperados:
 
 O aplicativo Flutter deverá usar a URL `http://10.0.2.2:3000` no emulador
 Android. Em um celular físico, deve ser usada a mesma rede local e o IP da
-máquina que está executando o servidor.
+máquina que está executando o servidor. No Flutter, informe esse endereço com
+`--dart-define=API_BASE_URL=http://IP_DA_MAQUINA:3000`. O servidor já escuta em
+`0.0.0.0`, permitindo acesso pela rede local.

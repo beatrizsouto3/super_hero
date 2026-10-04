@@ -8,12 +8,7 @@ import 'screens/home_screen.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final data = await ConfigureProviders.createDependencyTree();
-  runApp(
-    MultiProvider(
-      providers: data.providers,
-      child: const SuperHeroApp(),
-    ),
-  );
+  runApp(MultiProvider(providers: data.providers, child: const SuperHeroApp()));
 }
 
 class SuperHeroApp extends StatefulWidget {

@@ -10,9 +10,9 @@ class HeroAvatar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return CircleAvatar(
-      radius: radius,
-      backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+    final fallback = Container(
+      color: Theme.of(context).colorScheme.primaryContainer,
+      alignment: Alignment.center,
       child: Text(
         hero.name.substring(0, 1),
         style: TextStyle(
@@ -20,6 +20,63 @@ class HeroAvatar extends StatelessWidget {
           fontSize: radius * .75,
           fontWeight: FontWeight.bold,
         ),
+      ),
+    );
+
+    return ClipOval(
+      child: SizedBox(
+        width: radius * 2,
+        height: radius * 2,
+        child: hero.imageUrl.isEmpty
+            ? fallback
+            : Image.network(
+                hero.imageUrl,
+                fit: BoxFit.cover,
+                errorBuilder: (_, _, _) => fallback,
+                loadingBuilder: (context, child, progress) {
+                  if (progress == null) return child;
+                  return fallback;
+                },
+              ),
+      ),
+    );
+  }
+}
+
+class HeroPortrait extends StatelessWidget {
+  const HeroPortrait({super.key, required this.hero, this.width = 126});
+
+  final SuperHero hero;
+  final double width;
+
+  @override
+  Widget build(BuildContext context) {
+    final height = width * 1.32;
+    final fallback = Container(
+      color: Theme.of(context).colorScheme.primaryContainer,
+      alignment: Alignment.center,
+      child: Text(
+        hero.name.substring(0, 1),
+        style: Theme.of(context).textTheme.headlineLarge,
+      ),
+    );
+
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(12),
+      child: SizedBox(
+        width: width,
+        height: height,
+        child: hero.imageUrl.isEmpty
+            ? fallback
+            : Image.network(
+                hero.imageUrl,
+                fit: BoxFit.cover,
+                errorBuilder: (_, _, _) => fallback,
+                loadingBuilder: (context, child, progress) {
+                  if (progress == null) return child;
+                  return fallback;
+                },
+              ),
       ),
     );
   }
@@ -38,28 +95,37 @@ class HeroCard extends StatelessWidget {
       child: InkWell(
         onTap: onTap,
         child: Padding(
-          padding: const EdgeInsets.all(14),
+          padding: const EdgeInsets.all(12),
           child: Row(
             children: [
-              HeroAvatar(hero: hero),
-              const SizedBox(width: 14),
+              HeroPortrait(hero: hero),
+              const SizedBox(width: 16),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       hero.name,
-                      style: Theme.of(context).textTheme.titleMedium,
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      hero.publisher,
-                      style: Theme.of(context).textTheme.bodySmall,
+                      'Raça: ${hero.appearance['race'] ?? '-'}',
+                      style: Theme.of(context).textTheme.bodyLarge,
                     ),
-                    const SizedBox(height: 8),
                     Text(
-                      'Maior atributo: ${hero.highestStat}',
-                      style: Theme.of(context).textTheme.bodySmall,
+                      'Inteligência: ${hero.stat(HeroStat.intelligence)}',
+                      style: Theme.of(context).textTheme.bodyLarge,
+                    ),
+                    Text(
+                      'Força: ${hero.stat(HeroStat.strength)}',
+                      style: Theme.of(context).textTheme.bodyLarge,
+                    ),
+                    Text(
+                      'Combate: ${hero.stat(HeroStat.combat)}',
+                      style: Theme.of(context).textTheme.bodyLarge,
                     ),
                   ],
                 ),

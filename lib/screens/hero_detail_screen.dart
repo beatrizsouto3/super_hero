@@ -29,7 +29,7 @@ class HeroDetailScreen extends StatelessWidget {
               padding: const EdgeInsets.fromLTRB(20, 24, 20, 18),
               child: Column(
                 children: [
-                  HeroAvatar(hero: hero, radius: 64),
+                  HeroPortrait(hero: hero, width: 320),
                   const SizedBox(height: 14),
                   Text(
                     hero.name,

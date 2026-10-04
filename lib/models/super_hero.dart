@@ -1,3 +1,5 @@
+import 'hero_model.dart';
+
 enum HeroStat { intelligence, strength, speed, durability, power, combat }
 
 extension HeroStatExtension on HeroStat {
@@ -64,6 +66,35 @@ class SuperHero {
       stats: updatedStats,
       appearance: appearance,
       biography: biography,
+    );
+  }
+}
+
+extension HeroModelMapper on HeroModel {
+  SuperHero toSuperHero() {
+    final stats = <HeroStat, int>{
+      HeroStat.intelligence: powerstats['intelligence'] ?? 0,
+      HeroStat.strength: powerstats['strength'] ?? 0,
+      HeroStat.speed: powerstats['speed'] ?? 0,
+      HeroStat.durability: powerstats['durability'] ?? 0,
+      HeroStat.power: powerstats['power'] ?? 0,
+      HeroStat.combat: powerstats['combat'] ?? 0,
+    };
+
+    return SuperHero(
+      id: id,
+      name: name,
+      realName: biography['fullName']?.toString() ?? 'Identidade desconhecida',
+      publisher: biography['publisher']?.toString() ?? 'Desconhecido',
+      alignment: biography['alignment']?.toString() ?? 'unknown',
+      imageUrl: images['md'] ?? images['sm'] ?? images['xs'] ?? '',
+      stats: stats,
+      appearance: appearance.map(
+        (key, value) => MapEntry(key, value?.toString() ?? '-'),
+      ),
+      biography: biography.map(
+        (key, value) => MapEntry(key, value?.toString() ?? '-'),
+      ),
     );
   }
 }

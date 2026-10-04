@@ -1,8 +1,12 @@
 import 'package:flutter/foundation.dart';
 
 import '../models/hero_model.dart';
+import '../repositories/catalog_repository.dart';
 
 class CatalogProvider extends ChangeNotifier {
+  CatalogProvider({required this.repository});
+
+  final CatalogRepository repository;
   List<HeroModel> _heroes = <HeroModel>[];
   bool _loading = false;
   String? _error;
@@ -11,21 +15,25 @@ class CatalogProvider extends ChangeNotifier {
   bool get loading => _loading;
   String? get error => _error;
 
-  void setLoading(bool value) {
-    _loading = value;
+  Future<void> loadHeroes({int page = 1, int limit = 1000}) async {
+    _loading = true;
     notifyListeners();
+
+    try {
+      final heroes = await repository.getHeroes(page: page, limit: limit);
+      _heroes = List<HeroModel>.from(heroes);
+      _error = null;
+    } catch (error) {
+      _error = error.toString();
+    } finally {
+      _loading = false;
+      notifyListeners();
+    }
   }
 
-  void setHeroes(List<HeroModel> heroes) {
-    _heroes = List<HeroModel>.from(heroes);
-    _error = null;
-    _loading = false;
-    notifyListeners();
-  }
-
-  void setError(String message) {
-    _error = message;
-    _loading = false;
-    notifyListeners();
+  @override
+  void dispose() {
+    repository.dispose();
+    super.dispose();
   }
 }
