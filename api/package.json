@@ -1,0 +1,11 @@
+{
+  "name": "super-hero-api",
+  "private": true,
+  "description": "API local do projeto Super Hero usando json-server",
+  "scripts": {
+    "start": "json-server --watch db.json --host 0.0.0.0 --port 3000"
+  },
+  "devDependencies": {
+    "json-server": "0.17.4"
+  }
+}

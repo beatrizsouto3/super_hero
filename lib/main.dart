@@ -1,58 +1,49 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
-void main() {
-  runApp(const MyApp());
+import 'app/app_data.dart';
+import 'providers/configure_providers.dart';
+import 'screens/home_screen.dart';
+
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  final data = await ConfigureProviders.createDependencyTree();
+  runApp(
+    MultiProvider(
+      providers: data.providers,
+      child: const SuperHeroApp(),
+    ),
+  );
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class SuperHeroApp extends StatefulWidget {
+  const SuperHeroApp({super.key});
+
+  @override
+  State<SuperHeroApp> createState() => _SuperHeroAppState();
+}
+
+class _SuperHeroAppState extends State<SuperHeroApp> {
+  final AppData appData = AppData.demo();
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(home: ContadorPage());
-  }
-}
-
-class ContadorPage extends StatefulWidget {
-  const ContadorPage({super.key});
-
-  @override
-  State<ContadorPage> createState() => _ContadorPageState();
-}
-
-class _ContadorPageState extends State<ContadorPage> {
-  // 1. Variável que armazena o valor do contador
-  int _counter = 0;
-
-  // 2. Função padrão para incrementar o valor
-  void _incrementCounter() {
-    setState(() {
-      // O setState avisa ao Flutter que o estado mudou e a tela precisa ser reconstruída
-      _counter++;
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Exemplo de Incrementar')),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text('Você apertou o botão tantas vezes:'),
-            Text(
-              '$_counter', // Exibe o valor atual da variável
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
-          ],
+    return MaterialApp(
+      title: 'Super Hero',
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: const Color(0xff5b4bdb),
+          brightness: Brightness.dark,
+        ),
+        scaffoldBackgroundColor: const Color(0xff10101a),
+        useMaterial3: true,
+        cardTheme: const CardThemeData(
+          color: Color(0xff1d1c2b),
+          margin: EdgeInsets.zero,
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter, // Chama a função ao ser clicado
-        tooltip: 'Incrementar',
-        child: const Icon(Icons.add),
-      ),
+      home: HomeScreen(appData: appData),
     );
   }
 }
