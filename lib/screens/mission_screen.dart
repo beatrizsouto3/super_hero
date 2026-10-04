@@ -19,6 +19,7 @@ class _MissionScreenState extends State<MissionScreen> {
   final Random random = Random();
   List<_MissionRound> rounds = <_MissionRound>[];
   final Set<int> usedHeroIds = <int>{};
+  final List<int> winningHeroIds = <int>[];
   int roundIndex = 0;
   int victories = 0;
   int defeats = 0;
@@ -26,6 +27,8 @@ class _MissionScreenState extends State<MissionScreen> {
   int? selectedHeroId;
   bool started = false;
   String? lastResult;
+  SuperHero? rewardHero;
+  HeroStat? rewardAttribute;
 
   @override
   Widget build(BuildContext context) {
@@ -239,6 +242,26 @@ class _MissionScreenState extends State<MissionScreen> {
                 ),
               ),
               const SizedBox(height: 24),
+              if (rewardHero != null && rewardAttribute != null) ...[
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Row(
+                      children: [
+                        HeroAvatar(hero: rewardHero!, radius: 34),
+                        const SizedBox(width: 14),
+                        Expanded(
+                          child: Text(
+                            '${rewardHero!.name} recebeu +1 em '
+                            '${rewardAttribute!.label}.',
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 12),
+              ],
               FilledButton(
                 onPressed: () => setState(() {
                   started = false;
@@ -265,12 +288,15 @@ class _MissionScreenState extends State<MissionScreen> {
       ),
     );
     usedHeroIds.clear();
+    winningHeroIds.clear();
     roundIndex = 0;
     victories = 0;
     defeats = 0;
     draws = 0;
     selectedHeroId = null;
     lastResult = null;
+    rewardHero = null;
+    rewardAttribute = null;
     setState(() => started = true);
   }
 
@@ -284,13 +310,10 @@ class _MissionScreenState extends State<MissionScreen> {
     late String resultMessage;
     if (agentScore > enemyScore) {
       victories++;
+      winningHeroIds.add(selected.id);
       resultTitle = 'Vitória na rodada';
       resultMessage =
           '${selected.name} superou o inimigo em ${round.attribute.label}.';
-      widget.appData.improveHero(
-        selected.id,
-        HeroStat.values[random.nextInt(HeroStat.values.length)],
-      );
     } else if (agentScore < enemyScore) {
       defeats++;
       resultTitle = 'Derrota na rodada';
@@ -316,11 +339,42 @@ class _MissionScreenState extends State<MissionScreen> {
       ),
     );
     if (!mounted) return;
+    final finished = roundIndex + 1 >= rounds.length;
     setState(() {
       lastResult = resultMessage;
       roundIndex++;
       selectedHeroId = null;
     });
+    if (finished) await _finishMission();
+  }
+
+  Future<void> _finishMission() async {
+    final success = victories > defeats;
+    if (success && winningHeroIds.isNotEmpty) {
+      final winnerId = winningHeroIds[random.nextInt(winningHeroIds.length)];
+      rewardHero = widget.appData.heroById(winnerId);
+      rewardAttribute = HeroStat.values[random.nextInt(HeroStat.values.length)];
+      widget.appData.improveHero(winnerId, rewardAttribute!);
+    }
+
+    if (!mounted) return;
+    await showDialog<void>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(success ? 'Missão Cumprida!' : 'Operação Fracassada!'),
+        content: Text(
+          success
+              ? 'O esquadrão venceu a maioria dos rounds.'
+              : 'O esquadrão perdeu a maioria dos rounds.',
+        ),
+        actions: [
+          FilledButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Ver resultado'),
+          ),
+        ],
+      ),
+    );
   }
 }
 

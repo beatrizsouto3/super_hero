@@ -1,17 +1,27 @@
 import 'dart:math';
 
+import '../database/hero_local_database.dart';
+import '../models/hero_model.dart';
 import '../models/super_hero.dart';
 
 class AppData {
-  AppData(this._heroes);
+  AppData(this._heroes, [this._database]);
 
   factory AppData.demo() => AppData(_demoHeroes);
 
+  factory AppData.fromModels(
+    List<HeroModel> models, {
+    HeroLocalDatabase? database,
+  }) => AppData(
+    models.map((model) => model.toSuperHero()).toList(growable: true),
+    database,
+  );
+
   static const int squadLimit = 15;
   final List<SuperHero> _heroes;
+  final HeroLocalDatabase? _database;
   final Set<int> _squadIds = <int>{};
   int? _dailyHeroId;
-  DateTime? _dailyDate;
 
   List<SuperHero> get heroes => List.unmodifiable(_heroes);
 
@@ -29,25 +39,58 @@ class AppData {
   }
 
   SuperHero get dailyHero {
-    final today = DateTime.now();
-    if (_dailyDate == null ||
-        _dailyDate!.year != today.year ||
-        _dailyDate!.month != today.month ||
-        _dailyDate!.day != today.day) {
-      _dailyDate = today;
-      _dailyHeroId = _heroes[Random().nextInt(_heroes.length)].id;
+    if (_dailyHeroId == null) {
+      _selectDailyHero();
     }
     return heroById(_dailyHeroId!)!;
   }
 
   bool isRecruited(int id) => _squadIds.contains(id);
 
-  bool recruit(int id) {
-    if (squadIsFull || !_heroes.any((hero) => hero.id == id)) return false;
-    return _squadIds.add(id);
+  Future<void> loadPersistedSquad() async {
+    final ids = await _database?.getSquadIds();
+    if (ids == null) return;
+    _squadIds
+      ..clear()
+      ..addAll(ids.where((id) => _heroes.any((hero) => hero.id == id)));
   }
 
-  void dismiss(int id) => _squadIds.remove(id);
+  Future<void> loadPersistedDailyContract() async {
+    final record = await _database?.getDailyContract();
+    final today = _dateKey(DateTime.now());
+    final recordDate = record?['date']?.toString();
+    final recordHeroId = record?['hero_id'] as int?;
+
+    if (recordDate == today &&
+        recordHeroId != null &&
+        heroById(recordHeroId) != null) {
+      _dailyHeroId = recordHeroId;
+      return;
+    }
+
+    _selectDailyHero();
+    await _database?.saveDailyContract(heroId: _dailyHeroId!, date: today);
+  }
+
+  Future<bool> recruit(int id) async {
+    if (squadIsFull || !_heroes.any((hero) => hero.id == id)) return false;
+    final recruited = _squadIds.add(id);
+    if (recruited) await _database?.saveSquadIds(_squadIds);
+    return recruited;
+  }
+
+  Future<void> dismiss(int id) async {
+    if (_squadIds.remove(id)) await _database?.saveSquadIds(_squadIds);
+  }
+
+  void _selectDailyHero() {
+    _dailyHeroId = _heroes[Random().nextInt(_heroes.length)].id;
+  }
+
+  String _dateKey(DateTime date) =>
+      '${date.year.toString().padLeft(4, '0')}-'
+      '${date.month.toString().padLeft(2, '0')}-'
+      '${date.day.toString().padLeft(2, '0')}';
 
   void improveHero(int id, HeroStat attribute) {
     final index = _heroes.indexWhere((hero) => hero.id == id);

@@ -106,7 +106,8 @@ class HeroDetailScreen extends StatelessWidget {
       ),
     );
     if (shouldDismiss == true && context.mounted) {
-      appData.dismiss(hero.id);
+      await appData.dismiss(hero.id);
+      if (!context.mounted) return;
       onChanged?.call();
       Navigator.pop(context);
     }

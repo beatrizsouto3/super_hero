@@ -47,13 +47,50 @@ class HeroLocalDatabase {
     });
   }
 
+  Future<Set<int>> getSquadIds() async {
+    final rows = await (await _getDatabase()).query('squad');
+    return rows.map((row) => row['hero_id']! as int).toSet();
+  }
+
+  Future<void> saveSquadIds(Iterable<int> ids) async {
+    final database = await _getDatabase();
+    await database.transaction((transaction) async {
+      await transaction.delete('squad');
+      final batch = transaction.batch();
+      for (final id in ids) {
+        batch.insert('squad', {'hero_id': id});
+      }
+      await batch.commit(noResult: true);
+    });
+  }
+
+  Future<Map<String, Object?>?> getDailyContract() async {
+    final rows = await (await _getDatabase()).query(
+      'daily_contract',
+      where: 'id = 1',
+      limit: 1,
+    );
+    return rows.isEmpty ? null : rows.first;
+  }
+
+  Future<void> saveDailyContract({
+    required int heroId,
+    required String date,
+  }) async {
+    await (await _getDatabase()).insert('daily_contract', {
+      'id': 1,
+      'hero_id': heroId,
+      'date': date,
+    }, conflictAlgorithm: ConflictAlgorithm.replace);
+  }
+
   Future<Database> _getDatabase() => _database ??= _openDatabase();
 
   Future<Database> _openDatabase() async {
     final databasePath = join(await getDatabasesPath(), 'super_hero.db');
     return openDatabase(
       databasePath,
-      version: 1,
+      version: 3,
       onCreate: (database, version) async {
         await database.execute('''
           CREATE TABLE heroes(
@@ -61,6 +98,36 @@ class HeroLocalDatabase {
             payload TEXT NOT NULL
           )
         ''');
+        await database.execute('''
+          CREATE TABLE squad(
+            hero_id INTEGER PRIMARY KEY
+          )
+        ''');
+        await database.execute('''
+          CREATE TABLE daily_contract(
+            id INTEGER PRIMARY KEY,
+            hero_id INTEGER NOT NULL,
+            date TEXT NOT NULL
+          )
+        ''');
+      },
+      onUpgrade: (database, oldVersion, newVersion) async {
+        if (oldVersion < 2) {
+          await database.execute('''
+            CREATE TABLE squad(
+              hero_id INTEGER PRIMARY KEY
+            )
+          ''');
+        }
+        if (oldVersion < 3) {
+          await database.execute('''
+            CREATE TABLE daily_contract(
+              id INTEGER PRIMARY KEY,
+              hero_id INTEGER NOT NULL,
+              date TEXT NOT NULL
+            )
+          ''');
+        }
       },
     );
   }

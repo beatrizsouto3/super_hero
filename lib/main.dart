@@ -2,25 +2,37 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'app/app_data.dart';
+import 'database/hero_local_database.dart';
 import 'providers/configure_providers.dart';
 import 'screens/home_screen.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final data = await ConfigureProviders.createDependencyTree();
-  runApp(MultiProvider(providers: data.providers, child: const SuperHeroApp()));
+  final appData = AppData.fromModels(
+    data.catalogProvider.heroes,
+    database: HeroLocalDatabase(),
+  );
+  await appData.loadPersistedSquad();
+  await appData.loadPersistedDailyContract();
+  runApp(
+    MultiProvider(
+      providers: data.providers,
+      child: SuperHeroApp(appData: appData),
+    ),
+  );
 }
 
 class SuperHeroApp extends StatefulWidget {
-  const SuperHeroApp({super.key});
+  const SuperHeroApp({super.key, required this.appData});
+
+  final AppData appData;
 
   @override
   State<SuperHeroApp> createState() => _SuperHeroAppState();
 }
 
 class _SuperHeroAppState extends State<SuperHeroApp> {
-  final AppData appData = AppData.demo();
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -38,7 +50,7 @@ class _SuperHeroAppState extends State<SuperHeroApp> {
           margin: EdgeInsets.zero,
         ),
       ),
-      home: HomeScreen(appData: appData),
+      home: HomeScreen(appData: widget.appData),
     );
   }
 }

@@ -95,8 +95,9 @@ class _DailyContractScreenState extends State<DailyContractScreen> {
     );
   }
 
-  void _recruit(SuperHero hero) {
-    if (widget.appData.recruit(hero.id)) {
+  Future<void> _recruit(SuperHero hero) async {
+    if (await widget.appData.recruit(hero.id)) {
+      if (!mounted) return;
       widget.onChanged?.call();
       setState(() {});
       ScaffoldMessenger.of(context)
