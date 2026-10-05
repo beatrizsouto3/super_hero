@@ -2,23 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'app/app_data.dart';
-import 'database/hero_local_database.dart';
 import 'providers/configure_providers.dart';
 import 'screens/home_screen.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final data = await ConfigureProviders.createDependencyTree();
-  final appData = AppData.fromModels(
-    data.catalogProvider.heroes,
-    database: HeroLocalDatabase(),
-  );
-  await appData.loadPersistedSquad();
-  await appData.loadPersistedDailyContract();
   runApp(
     MultiProvider(
       providers: data.providers,
-      child: SuperHeroApp(appData: appData),
+      child: SuperHeroApp(appData: data.appData),
     ),
   );
 }
@@ -40,14 +33,16 @@ class _SuperHeroAppState extends State<SuperHeroApp> {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xff5b4bdb),
-          brightness: Brightness.dark,
+          seedColor: const Color(0xff71558f),
+          brightness: Brightness.light,
         ),
-        scaffoldBackgroundColor: const Color(0xff10101a),
+        scaffoldBackgroundColor: const Color(0xfffff8ff),
         useMaterial3: true,
-        cardTheme: const CardThemeData(
-          color: Color(0xff1d1c2b),
-          margin: EdgeInsets.zero,
+        cardTheme: const CardThemeData(margin: EdgeInsets.zero, elevation: 1),
+        inputDecorationTheme: const InputDecorationTheme(
+          filled: true,
+          fillColor: Colors.white,
+          border: OutlineInputBorder(),
         ),
       ),
       home: HomeScreen(appData: widget.appData),

@@ -32,6 +32,8 @@ class SuperHero {
     required this.stats,
     required this.appearance,
     required this.biography,
+    this.work = const <String, String>{},
+    this.connections = const <String, String>{},
   });
 
   final int id;
@@ -43,6 +45,8 @@ class SuperHero {
   final Map<HeroStat, int> stats;
   final Map<String, String> appearance;
   final Map<String, String> biography;
+  final Map<String, String> work;
+  final Map<String, String> connections;
 
   int stat(HeroStat attribute) => stats[attribute] ?? 0;
 
@@ -66,6 +70,8 @@ class SuperHero {
       stats: updatedStats,
       appearance: appearance,
       biography: biography,
+      work: work,
+      connections: connections,
     );
   }
 }
@@ -93,6 +99,10 @@ extension HeroModelMapper on HeroModel {
         (key, value) => MapEntry(key, value?.toString() ?? '-'),
       ),
       biography: biography.map(
+        (key, value) => MapEntry(key, value?.toString() ?? '-'),
+      ),
+      work: work.map((key, value) => MapEntry(key, value?.toString() ?? '-')),
+      connections: connections.map(
         (key, value) => MapEntry(key, value?.toString() ?? '-'),
       ),
     );

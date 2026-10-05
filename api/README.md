@@ -27,6 +27,10 @@ node -e "const fs=require('fs'); const heroes=JSON.parse(fs.readFileSync('all.js
 npm start
 ```
 
+O servidor usa a variável `PORT` quando ela existe, como no Render, e usa a
+porta `3000` localmente quando ela não está definida. Ele escuta em
+`0.0.0.0`, permitindo acesso externo quando hospedado.
+
 Endpoints esperados:
 
 - `GET http://localhost:3000/heroes`
@@ -38,3 +42,22 @@ Android. Em um celular físico, deve ser usada a mesma rede local e o IP da
 máquina que está executando o servidor. No Flutter, informe esse endereço com
 `--dart-define=API_BASE_URL=http://IP_DA_MAQUINA:3000`. O servidor já escuta em
 `0.0.0.0`, permitindo acesso pela rede local.
+
+## Publicação no Render
+
+Criar um Web Service apontando para este projeto e configurar:
+
+- **Root Directory:** `api`
+- **Build Command:** `npm install`
+- **Start Command:** `npm start`
+
+Depois da publicação, testar a URL pública com `/heroes` e configurar o
+aplicativo Flutter com:
+
+```bash
+flutter run --dart-define=API_BASE_URL=https://SUA-API.onrender.com
+```
+
+O catálogo é somente leitura nesta etapa. O `db.json` deve ser tratado como
+arquivo de dados inicial; alterações feitas pelo `json-server` em um ambiente
+efêmero não substituem um banco persistente.

@@ -13,6 +13,9 @@ _HeroModel _$HeroModelFromJson(Map<String, dynamic> json) => _HeroModel(
   powerstats: Map<String, int?>.from(json['powerstats'] as Map),
   appearance: json['appearance'] as Map<String, dynamic>,
   biography: json['biography'] as Map<String, dynamic>,
+  work: json['work'] as Map<String, dynamic>? ?? const <String, dynamic>{},
+  connections:
+      json['connections'] as Map<String, dynamic>? ?? const <String, dynamic>{},
   images: Map<String, String>.from(json['images'] as Map),
 );
 
@@ -24,5 +27,7 @@ Map<String, dynamic> _$HeroModelToJson(_HeroModel instance) =>
       'powerstats': instance.powerstats,
       'appearance': instance.appearance,
       'biography': instance.biography,
+      'work': instance.work,
+      'connections': instance.connections,
       'images': instance.images,
     };

@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$HeroModel {
 
- int get id; String get name; String get slug; Map<String, int?> get powerstats; Map<String, dynamic> get appearance; Map<String, dynamic> get biography; Map<String, String> get images;
+ int get id; String get name; String get slug; Map<String, int?> get powerstats; Map<String, dynamic> get appearance; Map<String, dynamic> get biography; Map<String, dynamic> get work; Map<String, dynamic> get connections; Map<String, String> get images;
 /// Create a copy of HeroModel
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -28,16 +28,16 @@ $HeroModelCopyWith<HeroModel> get copyWith => _$HeroModelCopyWithImpl<HeroModel>
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is HeroModel&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.slug, slug) || other.slug == slug)&&const DeepCollectionEquality().equals(other.powerstats, powerstats)&&const DeepCollectionEquality().equals(other.appearance, appearance)&&const DeepCollectionEquality().equals(other.biography, biography)&&const DeepCollectionEquality().equals(other.images, images));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is HeroModel&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.slug, slug) || other.slug == slug)&&const DeepCollectionEquality().equals(other.powerstats, powerstats)&&const DeepCollectionEquality().equals(other.appearance, appearance)&&const DeepCollectionEquality().equals(other.biography, biography)&&const DeepCollectionEquality().equals(other.work, work)&&const DeepCollectionEquality().equals(other.connections, connections)&&const DeepCollectionEquality().equals(other.images, images));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,name,slug,const DeepCollectionEquality().hash(powerstats),const DeepCollectionEquality().hash(appearance),const DeepCollectionEquality().hash(biography),const DeepCollectionEquality().hash(images));
+int get hashCode => Object.hash(runtimeType,id,name,slug,const DeepCollectionEquality().hash(powerstats),const DeepCollectionEquality().hash(appearance),const DeepCollectionEquality().hash(biography),const DeepCollectionEquality().hash(work),const DeepCollectionEquality().hash(connections),const DeepCollectionEquality().hash(images));
 
 @override
 String toString() {
-  return 'HeroModel(id: $id, name: $name, slug: $slug, powerstats: $powerstats, appearance: $appearance, biography: $biography, images: $images)';
+  return 'HeroModel(id: $id, name: $name, slug: $slug, powerstats: $powerstats, appearance: $appearance, biography: $biography, work: $work, connections: $connections, images: $images)';
 }
 
 
@@ -48,7 +48,7 @@ abstract mixin class $HeroModelCopyWith<$Res>  {
   factory $HeroModelCopyWith(HeroModel value, $Res Function(HeroModel) _then) = _$HeroModelCopyWithImpl;
 @useResult
 $Res call({
- int id, String name, String slug, Map<String, int?> powerstats, Map<String, dynamic> appearance, Map<String, dynamic> biography, Map<String, String> images
+ int id, String name, String slug, Map<String, int?> powerstats, Map<String, dynamic> appearance, Map<String, dynamic> biography, Map<String, dynamic> work, Map<String, dynamic> connections, Map<String, String> images
 });
 
 
@@ -65,7 +65,7 @@ class _$HeroModelCopyWithImpl<$Res>
 
 /// Create a copy of HeroModel
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? name = null,Object? slug = null,Object? powerstats = null,Object? appearance = null,Object? biography = null,Object? images = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? name = null,Object? slug = null,Object? powerstats = null,Object? appearance = null,Object? biography = null,Object? work = null,Object? connections = null,Object? images = null,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
@@ -73,6 +73,8 @@ as String,slug: null == slug ? _self.slug : slug // ignore: cast_nullable_to_non
 as String,powerstats: null == powerstats ? _self.powerstats : powerstats // ignore: cast_nullable_to_non_nullable
 as Map<String, int?>,appearance: null == appearance ? _self.appearance : appearance // ignore: cast_nullable_to_non_nullable
 as Map<String, dynamic>,biography: null == biography ? _self.biography : biography // ignore: cast_nullable_to_non_nullable
+as Map<String, dynamic>,work: null == work ? _self.work : work // ignore: cast_nullable_to_non_nullable
+as Map<String, dynamic>,connections: null == connections ? _self.connections : connections // ignore: cast_nullable_to_non_nullable
 as Map<String, dynamic>,images: null == images ? _self.images : images // ignore: cast_nullable_to_non_nullable
 as Map<String, String>,
   ));
@@ -159,10 +161,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  String name,  String slug,  Map<String, int?> powerstats,  Map<String, dynamic> appearance,  Map<String, dynamic> biography,  Map<String, String> images)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  String name,  String slug,  Map<String, int?> powerstats,  Map<String, dynamic> appearance,  Map<String, dynamic> biography,  Map<String, dynamic> work,  Map<String, dynamic> connections,  Map<String, String> images)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _HeroModel() when $default != null:
-return $default(_that.id,_that.name,_that.slug,_that.powerstats,_that.appearance,_that.biography,_that.images);case _:
+return $default(_that.id,_that.name,_that.slug,_that.powerstats,_that.appearance,_that.biography,_that.work,_that.connections,_that.images);case _:
   return orElse();
 
 }
@@ -180,10 +182,10 @@ return $default(_that.id,_that.name,_that.slug,_that.powerstats,_that.appearance
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  String name,  String slug,  Map<String, int?> powerstats,  Map<String, dynamic> appearance,  Map<String, dynamic> biography,  Map<String, String> images)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  String name,  String slug,  Map<String, int?> powerstats,  Map<String, dynamic> appearance,  Map<String, dynamic> biography,  Map<String, dynamic> work,  Map<String, dynamic> connections,  Map<String, String> images)  $default,) {final _that = this;
 switch (_that) {
 case _HeroModel():
-return $default(_that.id,_that.name,_that.slug,_that.powerstats,_that.appearance,_that.biography,_that.images);case _:
+return $default(_that.id,_that.name,_that.slug,_that.powerstats,_that.appearance,_that.biography,_that.work,_that.connections,_that.images);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -200,10 +202,10 @@ return $default(_that.id,_that.name,_that.slug,_that.powerstats,_that.appearance
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  String name,  String slug,  Map<String, int?> powerstats,  Map<String, dynamic> appearance,  Map<String, dynamic> biography,  Map<String, String> images)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  String name,  String slug,  Map<String, int?> powerstats,  Map<String, dynamic> appearance,  Map<String, dynamic> biography,  Map<String, dynamic> work,  Map<String, dynamic> connections,  Map<String, String> images)?  $default,) {final _that = this;
 switch (_that) {
 case _HeroModel() when $default != null:
-return $default(_that.id,_that.name,_that.slug,_that.powerstats,_that.appearance,_that.biography,_that.images);case _:
+return $default(_that.id,_that.name,_that.slug,_that.powerstats,_that.appearance,_that.biography,_that.work,_that.connections,_that.images);case _:
   return null;
 
 }
@@ -215,7 +217,7 @@ return $default(_that.id,_that.name,_that.slug,_that.powerstats,_that.appearance
 @JsonSerializable()
 
 class _HeroModel implements HeroModel {
-  const _HeroModel({required this.id, required this.name, required this.slug, required this.powerstats, required this.appearance, required this.biography, required this.images});
+  const _HeroModel({required this.id, required this.name, required this.slug, required this.powerstats, required this.appearance, required this.biography, this.work = const <String, dynamic>{}, this.connections = const <String, dynamic>{}, required this.images});
   factory _HeroModel.fromJson(Map<String, dynamic> json) => _$HeroModelFromJson(json);
 
 @override final  int id;
@@ -224,6 +226,8 @@ class _HeroModel implements HeroModel {
 @override final  Map<String, int?> powerstats;
 @override final  Map<String, dynamic> appearance;
 @override final  Map<String, dynamic> biography;
+@override@JsonKey() final  Map<String, dynamic> work;
+@override@JsonKey() final  Map<String, dynamic> connections;
 @override final  Map<String, String> images;
 
 /// Create a copy of HeroModel
@@ -239,16 +243,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _HeroModel&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.slug, slug) || other.slug == slug)&&const DeepCollectionEquality().equals(other.powerstats, powerstats)&&const DeepCollectionEquality().equals(other.appearance, appearance)&&const DeepCollectionEquality().equals(other.biography, biography)&&const DeepCollectionEquality().equals(other.images, images));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _HeroModel&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.slug, slug) || other.slug == slug)&&const DeepCollectionEquality().equals(other.powerstats, powerstats)&&const DeepCollectionEquality().equals(other.appearance, appearance)&&const DeepCollectionEquality().equals(other.biography, biography)&&const DeepCollectionEquality().equals(other.work, work)&&const DeepCollectionEquality().equals(other.connections, connections)&&const DeepCollectionEquality().equals(other.images, images));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,name,slug,const DeepCollectionEquality().hash(powerstats),const DeepCollectionEquality().hash(appearance),const DeepCollectionEquality().hash(biography),const DeepCollectionEquality().hash(images));
+int get hashCode => Object.hash(runtimeType,id,name,slug,const DeepCollectionEquality().hash(powerstats),const DeepCollectionEquality().hash(appearance),const DeepCollectionEquality().hash(biography),const DeepCollectionEquality().hash(work),const DeepCollectionEquality().hash(connections),const DeepCollectionEquality().hash(images));
 
 @override
 String toString() {
-  return 'HeroModel(id: $id, name: $name, slug: $slug, powerstats: $powerstats, appearance: $appearance, biography: $biography, images: $images)';
+  return 'HeroModel(id: $id, name: $name, slug: $slug, powerstats: $powerstats, appearance: $appearance, biography: $biography, work: $work, connections: $connections, images: $images)';
 }
 
 
@@ -259,7 +263,7 @@ abstract mixin class _$HeroModelCopyWith<$Res> implements $HeroModelCopyWith<$Re
   factory _$HeroModelCopyWith(_HeroModel value, $Res Function(_HeroModel) _then) = __$HeroModelCopyWithImpl;
 @override @useResult
 $Res call({
- int id, String name, String slug, Map<String, int?> powerstats, Map<String, dynamic> appearance, Map<String, dynamic> biography, Map<String, String> images
+ int id, String name, String slug, Map<String, int?> powerstats, Map<String, dynamic> appearance, Map<String, dynamic> biography, Map<String, dynamic> work, Map<String, dynamic> connections, Map<String, String> images
 });
 
 
@@ -276,7 +280,7 @@ class __$HeroModelCopyWithImpl<$Res>
 
 /// Create a copy of HeroModel
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? name = null,Object? slug = null,Object? powerstats = null,Object? appearance = null,Object? biography = null,Object? images = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? name = null,Object? slug = null,Object? powerstats = null,Object? appearance = null,Object? biography = null,Object? work = null,Object? connections = null,Object? images = null,}) {
   return _then(_HeroModel(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
@@ -284,6 +288,8 @@ as String,slug: null == slug ? _self.slug : slug // ignore: cast_nullable_to_non
 as String,powerstats: null == powerstats ? _self.powerstats : powerstats // ignore: cast_nullable_to_non_nullable
 as Map<String, int?>,appearance: null == appearance ? _self.appearance : appearance // ignore: cast_nullable_to_non_nullable
 as Map<String, dynamic>,biography: null == biography ? _self.biography : biography // ignore: cast_nullable_to_non_nullable
+as Map<String, dynamic>,work: null == work ? _self.work : work // ignore: cast_nullable_to_non_nullable
+as Map<String, dynamic>,connections: null == connections ? _self.connections : connections // ignore: cast_nullable_to_non_nullable
 as Map<String, dynamic>,images: null == images ? _self.images : images // ignore: cast_nullable_to_non_nullable
 as Map<String, String>,
   ));

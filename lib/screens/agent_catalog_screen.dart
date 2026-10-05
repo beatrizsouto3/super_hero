@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 
 import '../app/app_data.dart';
 import '../models/super_hero.dart';
@@ -18,6 +19,34 @@ class AgentCatalogScreen extends StatefulWidget {
 
 class _AgentCatalogScreenState extends State<AgentCatalogScreen> {
   String query = '';
+  late final PagingController<int, SuperHero> _pagingController =
+      PagingController<int, SuperHero>(
+        getNextPageKey: (state) {
+          if (state.lastPageIsEmpty) return null;
+          return state.nextIntPageKey;
+        },
+        fetchPage: _fetchPage,
+      );
+
+  Future<List<SuperHero>> _fetchPage(int pageKey) async {
+    final allHeroes = context
+        .read<CatalogProvider>()
+        .heroes
+        .map((hero) => hero.toSuperHero())
+        .where((hero) => hero.name.toLowerCase().contains(query.toLowerCase()))
+        .toList();
+    const pageSize = 20;
+    final start = (pageKey - 1) * pageSize;
+    if (start >= allHeroes.length) return <SuperHero>[];
+    final end = (start + pageSize).clamp(0, allHeroes.length);
+    return allHeroes.sublist(start, end);
+  }
+
+  @override
+  void dispose() {
+    _pagingController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +57,10 @@ class _AgentCatalogScreenState extends State<AgentCatalogScreen> {
           Padding(
             padding: const EdgeInsets.fromLTRB(20, 8, 20, 16),
             child: TextField(
-              onChanged: (value) => setState(() => query = value),
+              onChanged: (value) {
+                setState(() => query = value);
+                _pagingController.refresh();
+              },
               decoration: const InputDecoration(
                 prefixIcon: Icon(Icons.search),
                 hintText: 'Buscar agente',
@@ -49,37 +81,32 @@ class _AgentCatalogScreenState extends State<AgentCatalogScreen> {
                   );
                 }
 
-                final heroes = catalog.heroes
-                    .map((hero) => hero.toSuperHero())
-                    .where(
-                      (hero) =>
-                          hero.name.toLowerCase().contains(query.toLowerCase()),
-                    )
-                    .toList();
-
-                if (heroes.isEmpty) {
-                  return const Center(child: Text('Nenhum agente encontrado.'));
-                }
-
-                return ListView.separated(
-                  padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
-                  itemCount: heroes.length,
-                  separatorBuilder: (_, _) => const SizedBox(height: 10),
-                  itemBuilder: (context, index) {
-                    final hero = heroes[index];
-                    return HeroCard(
-                      hero: hero,
-                      onTap: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => HeroDetailScreen(
+                return PagingListener(
+                  controller: _pagingController,
+                  builder: (context, state, fetchNextPage) =>
+                      PagedListView<int, SuperHero>.separated(
+                        state: state,
+                        fetchNextPage: fetchNextPage,
+                        padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
+                        separatorBuilder: (_, _) => const SizedBox(height: 10),
+                        builderDelegate: PagedChildBuilderDelegate<SuperHero>(
+                          noItemsFoundIndicatorBuilder: (_) => const Center(
+                            child: Text('Nenhum agente encontrado.'),
+                          ),
+                          itemBuilder: (context, hero, index) => HeroCard(
                             hero: hero,
-                            appData: widget.appData,
+                            onTap: () => Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => HeroDetailScreen(
+                                  hero: hero,
+                                  appData: widget.appData,
+                                ),
+                              ),
+                            ),
                           ),
                         ),
                       ),
-                    );
-                  },
                 );
               },
             ),

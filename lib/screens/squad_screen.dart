@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../app/app_data.dart';
+import '../providers/squad_provider.dart';
 import '../widgets/hero_widgets.dart';
 import 'hero_detail_screen.dart';
 
@@ -17,39 +19,42 @@ class SquadScreen extends StatefulWidget {
 class _SquadScreenState extends State<SquadScreen> {
   @override
   Widget build(BuildContext context) {
-    final squad = widget.appData.squad;
-    return Scaffold(
-      appBar: AppBar(title: Text('Meu Esquadrão (${squad.length}/15)')),
-      body: squad.isEmpty
-          ? _EmptySquad(onRecruit: () => Navigator.pop(context))
-          : ListView.separated(
-              padding: const EdgeInsets.all(20),
-              itemCount: squad.length,
-              separatorBuilder: (_, _) => const SizedBox(height: 10),
-              itemBuilder: (context, index) {
-                final hero = squad[index];
-                return HeroCard(
-                  hero: hero,
-                  onTap: () async {
-                    await Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => HeroDetailScreen(
-                          hero: hero,
-                          appData: widget.appData,
-                          isSquadMember: true,
-                          onChanged: () {
-                            widget.onChanged?.call();
-                            setState(() {});
-                          },
-                        ),
-                      ),
+    return Consumer<SquadProvider>(
+      builder: (context, squadState, _) {
+        final squad = squadState.squad;
+        return Scaffold(
+          appBar: AppBar(title: Text('Meu Esquadrão (${squad.length}/15)')),
+          body: squad.isEmpty
+              ? _EmptySquad(onRecruit: () => Navigator.pop(context))
+              : ListView.separated(
+                  padding: const EdgeInsets.all(20),
+                  itemCount: squad.length,
+                  separatorBuilder: (_, _) => const SizedBox(height: 10),
+                  itemBuilder: (context, index) {
+                    final hero = squad[index];
+                    return HeroCard(
+                      hero: hero,
+                      onTap: () async {
+                        await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => HeroDetailScreen(
+                              hero: hero,
+                              appData: widget.appData,
+                              isSquadMember: true,
+                              onChanged: () {
+                                widget.onChanged?.call();
+                                squadState.refresh();
+                              },
+                            ),
+                          ),
+                        );
+                      },
                     );
-                    setState(() {});
                   },
-                );
-              },
-            ),
+                ),
+        );
+      },
     );
   }
 }

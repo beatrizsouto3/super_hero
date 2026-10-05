@@ -12,6 +12,8 @@ abstract class HeroModel with _$HeroModel {
     required Map<String, int?> powerstats,
     required Map<String, dynamic> appearance,
     required Map<String, dynamic> biography,
+    @Default(<String, dynamic>{}) Map<String, dynamic> work,
+    @Default(<String, dynamic>{}) Map<String, dynamic> connections,
     required Map<String, String> images,
   }) = _HeroModel;
 

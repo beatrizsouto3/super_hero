@@ -38,3 +38,14 @@ flutter run --dart-define=API_BASE_URL=http://127.0.0.1:3000
 O celular precisa estar autorizado para depuração USB. Para o acesso pela
 rede, computador e celular devem estar na mesma rede e o firewall deve liberar
 a porta `3000`.
+
+## API publicada
+
+Quando a API estiver no Render, execute o Flutter usando a URL pública:
+
+```bash
+flutter run --dart-define=API_BASE_URL=https://SUA-API.onrender.com
+```
+
+A URL não fica fixa no código; a configuração padrão continua apontando para o
+emulador Android local.

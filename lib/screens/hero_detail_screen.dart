@@ -1,7 +1,10 @@
+import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../app/app_data.dart';
 import '../models/super_hero.dart';
+import '../providers/squad_provider.dart';
 import '../widgets/hero_widgets.dart';
 
 class HeroDetailScreen extends StatelessWidget {
@@ -55,6 +58,18 @@ class HeroDetailScreen extends StatelessWidget {
             ),
           ),
           SliverPadding(
+            padding: const EdgeInsets.fromLTRB(20, 18, 20, 0),
+            sliver: SliverToBoxAdapter(
+              child: _InfoCard(title: 'Work', values: hero.work),
+            ),
+          ),
+          SliverPadding(
+            padding: const EdgeInsets.fromLTRB(20, 18, 20, 0),
+            sliver: SliverToBoxAdapter(
+              child: _InfoCard(title: 'Connections', values: hero.connections),
+            ),
+          ),
+          SliverPadding(
             padding: const EdgeInsets.fromLTRB(20, 18, 20, 24),
             sliver: SliverToBoxAdapter(
               child: Card(
@@ -88,25 +103,19 @@ class HeroDetailScreen extends StatelessWidget {
   }
 
   Future<void> _confirmDismiss(BuildContext context) async {
-    final shouldDismiss = await showDialog<bool>(
+    var shouldDismiss = false;
+    await AwesomeDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Dispensar agente?'),
-        content: Text('Deseja remover ${hero.name} do esquadrão?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancelar'),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: const Text('Dispensar'),
-          ),
-        ],
-      ),
-    );
-    if (shouldDismiss == true && context.mounted) {
-      await appData.dismiss(hero.id);
+      dialogType: DialogType.warning,
+      title: 'Dispensar agente?',
+      desc: 'Deseja remover ${hero.name} do esquadrão?',
+      btnCancelText: 'Cancelar',
+      btnCancelOnPress: () {},
+      btnOkText: 'Dispensar',
+      btnOkOnPress: () => shouldDismiss = true,
+    ).show();
+    if (shouldDismiss && context.mounted) {
+      await context.read<SquadProvider>().dismiss(hero.id);
       if (!context.mounted) return;
       onChanged?.call();
       Navigator.pop(context);

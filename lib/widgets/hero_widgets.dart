@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:primer_progress_bar/primer_progress_bar.dart';
 
 import '../models/super_hero.dart';
 
@@ -29,14 +31,11 @@ class HeroAvatar extends StatelessWidget {
         height: radius * 2,
         child: hero.imageUrl.isEmpty
             ? fallback
-            : Image.network(
-                hero.imageUrl,
+            : CachedNetworkImage(
+                imageUrl: hero.imageUrl,
                 fit: BoxFit.cover,
-                errorBuilder: (_, _, _) => fallback,
-                loadingBuilder: (context, child, progress) {
-                  if (progress == null) return child;
-                  return fallback;
-                },
+                placeholder: (_, _) => fallback,
+                errorWidget: (_, _, _) => fallback,
               ),
       ),
     );
@@ -68,14 +67,11 @@ class HeroPortrait extends StatelessWidget {
         height: height,
         child: hero.imageUrl.isEmpty
             ? fallback
-            : Image.network(
-                hero.imageUrl,
+            : CachedNetworkImage(
+                imageUrl: hero.imageUrl,
                 fit: BoxFit.cover,
-                errorBuilder: (_, _, _) => fallback,
-                loadingBuilder: (context, child, progress) {
-                  if (progress == null) return child;
-                  return fallback;
-                },
+                placeholder: (_, _) => fallback,
+                errorWidget: (_, _, _) => fallback,
               ),
       ),
     );
@@ -106,9 +102,8 @@ class HeroCard extends StatelessWidget {
                   children: [
                     Text(
                       hero.name,
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
+                      style: Theme.of(context).textTheme.titleLarge
+                          ?.copyWith(fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 4),
                     Text(
@@ -157,11 +152,15 @@ class StatBars extends StatelessWidget {
               Expanded(
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(8),
-                  child: LinearProgressIndicator(
-                    minHeight: 9,
-                    value: value / 100,
-                    backgroundColor: Colors.white12,
-                    color: Theme.of(context).colorScheme.primary,
+                  child: PrimerProgressBar(
+                    segments: [
+                      Segment(
+                        value: value,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                    ],
+                    maxTotalValue: 100,
+                    showLegend: false,
                   ),
                 ),
               ),
