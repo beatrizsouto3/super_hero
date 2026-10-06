@@ -1,6 +1,3 @@
-import 'dart:async';
-import 'dart:math';
-
 import '../database/hero_local_database.dart';
 import '../models/hero_model.dart';
 import '../models/super_hero.dart';
@@ -8,7 +5,7 @@ import '../models/super_hero.dart';
 class AppData {
   AppData(this._heroes, [this._database]);
 
-  factory AppData.demo() => AppData(_demoHeroes);
+  factory AppData.demo() => AppData(List<SuperHero>.from(_demoHeroes));
 
   factory AppData.fromModels(
     List<HeroModel> models, {
@@ -24,17 +21,7 @@ class AppData {
   static const Duration contractInterval = Duration(seconds: 10);
   final List<SuperHero> _heroes;
   final HeroLocalDatabase? _database;
-  final Set<int> _squadIds = <int>{};
-  int? _dailyHeroId;
-  DateTime? _dailyGeneratedAt;
-
   List<SuperHero> get heroes => List.unmodifiable(_heroes);
-
-  List<SuperHero> get squad => _heroes
-      .where((hero) => _squadIds.contains(hero.id))
-      .toList(growable: false);
-
-  bool get squadIsFull => _squadIds.length >= squadLimit;
 
   SuperHero? heroById(int id) {
     for (final hero in _heroes) {
@@ -43,87 +30,14 @@ class AppData {
     return null;
   }
 
-  SuperHero get dailyHero {
-    final now = DateTime.now();
-    if (_dailyHeroId == null ||
-        _dailyGeneratedAt == null ||
-        now.difference(_dailyGeneratedAt!) >= contractInterval) {
-      _selectDailyHero();
-      unawaited(_persistDailyContract());
-    }
-    return heroById(_dailyHeroId!)!;
-  }
-
-  bool isRecruited(int id) => _squadIds.contains(id);
-
-  Future<void> loadPersistedSquad() async {
-    final ids = await _database?.getSquadIds();
-    if (ids == null) return;
-    _squadIds
-      ..clear()
-      ..addAll(ids.where((id) => _heroes.any((hero) => hero.id == id)));
-  }
-
-  Future<void> loadPersistedDailyContract() async {
-    final record = await _database?.getDailyContract();
-    final now = DateTime.now();
-    final recordDate = record?['date']?.toString();
-    final recordHeroId = record?['hero_id'] as int?;
-    final generatedAt = recordDate == null
-        ? null
-        : DateTime.tryParse(recordDate);
-
-    if (generatedAt != null &&
-        now.difference(generatedAt) >= Duration.zero &&
-        now.difference(generatedAt) < contractInterval &&
-        recordHeroId != null &&
-        heroById(recordHeroId) != null) {
-      _dailyGeneratedAt = generatedAt;
-      _dailyHeroId = recordHeroId;
-      return;
-    }
-
-    _selectDailyHero();
-    await _persistDailyContract();
-  }
-
-  Future<bool> recruit(int id) async {
-    if (squadIsFull || !_heroes.any((hero) => hero.id == id)) return false;
-    final recruited = _squadIds.add(id);
-    if (recruited) await _database?.saveSquadIds(_squadIds);
-    return recruited;
-  }
-
-  Future<void> dismiss(int id) async {
-    if (_squadIds.remove(id)) await _database?.saveSquadIds(_squadIds);
-  }
-
-  void _selectDailyHero() {
-    final availableHeroes = _heroes
-        .where((hero) => hero.id != _dailyHeroId && !isRecruited(hero.id))
-        .toList();
-    final candidates = availableHeroes.isNotEmpty
-        ? availableHeroes
-        : _heroes.where((hero) => hero.id != _dailyHeroId).toList();
-    _dailyHeroId = candidates[Random().nextInt(candidates.length)].id;
-    _dailyGeneratedAt = DateTime.now();
-  }
-
-  Future<void> _persistDailyContract() async {
-    final heroId = _dailyHeroId;
-    final generatedAt = _dailyGeneratedAt;
-    if (heroId == null || generatedAt == null) return;
-    await _database?.saveDailyContract(
-      heroId: heroId,
-      date: generatedAt.toIso8601String(),
-    );
-  }
-
-  void improveHero(int id, HeroStat attribute) {
+  Future<void> improveHero(int id, HeroStat attribute) async {
     final index = _heroes.indexWhere((hero) => hero.id == id);
     if (index == -1) return;
     _heroes[index] = _heroes[index].copyWithStat(attribute);
+    await _database?.updateHeroStat(id, attribute.name);
   }
+
+  void dispose() => _database?.dispose();
 
   static final List<SuperHero> _demoHeroes = <SuperHero>[
     _hero(

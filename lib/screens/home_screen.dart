@@ -14,7 +14,6 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final squadProgress = appData.squad.length / AppData.squadLimit;
 
     return Scaffold(
       appBar: AppBar(title: const Text('Super Hero')),
@@ -33,34 +32,6 @@ class HomeScreen extends StatelessWidget {
             style: theme.textTheme.bodyMedium,
           ),
           const SizedBox(height: 20),
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      const Icon(Icons.people_outline),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: Text(
-                          'Meu esquadrão',
-                          style: theme.textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                      Text('${appData.squad.length}/15'),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  LinearProgressIndicator(value: squadProgress),
-                ],
-              ),
-            ),
-          ),
-          const SizedBox(height: 24),
           Text(
             'Operações',
             style: theme.textTheme.titleMedium?.copyWith(

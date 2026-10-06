@@ -107,7 +107,7 @@ class HeroCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'Raça: ${hero.appearance['race'] ?? '-'}',
+                      'Maior atributo: ${hero.highestStat}',
                       style: Theme.of(context).textTheme.bodyLarge,
                     ),
                     Text(
@@ -143,7 +143,9 @@ class StatBars extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: HeroStat.values.map((attribute) {
-        final value = hero.stat(attribute);
+        // A barra do Primer exige valores inteiros entre 0 e 100. A
+        // normalização protege a tela contra cache/API com dados inválidos.
+        final value = hero.stat(attribute).clamp(0, 100).toInt();
         return Padding(
           padding: const EdgeInsets.symmetric(vertical: 5),
           child: Row(

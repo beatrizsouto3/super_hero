@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:awesome_dialog/awesome_dialog.dart';
 
 import '../app/app_data.dart';
 import '../models/super_hero.dart';
@@ -144,8 +145,8 @@ class _RoundView extends StatelessWidget {
     final result = await mission.resolveRound();
     if (result == null || !navigator.mounted) return;
 
-    await _showResultDialog(
-      navigator: navigator,
+    await _showRoundResultDialog(
+      context: navigator.context,
       title: result.title,
       message: result.message,
       buttonLabel: result.finished ? 'Ver resultado' : 'Continuar',
@@ -153,24 +154,21 @@ class _RoundView extends StatelessWidget {
     if (!result.finished || !navigator.mounted) return;
 
     final success = mission.victories > mission.defeats;
-    await _showResultDialog(
-      navigator: navigator,
-      title: success ? 'Missão Cumprida!' : 'Operação Fracassada!',
-      message: success
-          ? 'O esquadrão venceu a maioria dos rounds.'
-          : 'O esquadrão perdeu a maioria dos rounds.',
-      buttonLabel: 'Ver resultado',
+    await _showMissionFeedback(
+      context: navigator.context,
+      mission: mission,
+      success: success,
     );
   }
 
-  Future<void> _showResultDialog({
-    required NavigatorState navigator,
+  Future<void> _showRoundResultDialog({
+    required BuildContext context,
     required String title,
     required String message,
     required String buttonLabel,
   }) {
     return showDialog<void>(
-      context: navigator.context,
+      context: context,
       barrierDismissible: false,
       builder: (dialogContext) => AlertDialog(
         title: Text(title),
@@ -183,6 +181,48 @@ class _RoundView extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  Future<void> _showMissionFeedback({
+    required BuildContext context,
+    required MissionProvider mission,
+    required bool success,
+  }) {
+    final rewardHero = mission.rewardHero;
+    final defeatHero = mission.lastEnemy;
+    final body = Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (success && rewardHero != null) ...[
+          HeroPortrait(hero: rewardHero, width: 130),
+          const SizedBox(height: 10),
+          Text('Recompensa: ${rewardHero.name}'),
+          if (mission.rewardAttribute != null)
+            Text('+1 em ${mission.rewardAttribute!.label}'),
+        ] else if (!success && defeatHero != null) ...[
+          HeroPortrait(hero: defeatHero, width: 130),
+          const SizedBox(height: 10),
+          Text('A ameaça ${defeatHero.name} prevaleceu.'),
+        ],
+        const SizedBox(height: 10),
+        Text(
+          success
+              ? 'O esquadrão venceu a maioria dos rounds.'
+              : 'O esquadrão perdeu a maioria dos rounds.',
+          textAlign: TextAlign.center,
+        ),
+      ],
+    );
+
+    return AwesomeDialog(
+      context: context,
+      dialogType: success ? DialogType.success : DialogType.error,
+      title: success ? 'Missão Cumprida!' : 'Operação Fracassada!',
+      body: body,
+      btnOkText: 'Ver resultado',
+      btnOkOnPress: () {},
+      dismissOnTouchOutside: false,
+    ).show();
   }
 }
 

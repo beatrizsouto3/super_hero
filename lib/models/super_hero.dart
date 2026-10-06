@@ -6,17 +6,17 @@ extension HeroStatExtension on HeroStat {
   String get label {
     switch (this) {
       case HeroStat.intelligence:
-        return 'Intelligence';
+        return 'Inteligência';
       case HeroStat.strength:
-        return 'Strength';
+        return 'Força';
       case HeroStat.speed:
-        return 'Speed';
+        return 'Velocidade';
       case HeroStat.durability:
-        return 'Durability';
+        return 'Resistência';
       case HeroStat.power:
-        return 'Power';
+        return 'Poder';
       case HeroStat.combat:
-        return 'Combat';
+        return 'Combate';
     }
   }
 }
@@ -59,7 +59,8 @@ class SuperHero {
 
   SuperHero copyWithStat(HeroStat attribute) {
     final updatedStats = Map<HeroStat, int>.from(stats);
-    updatedStats[attribute] = stat(attribute) + 1;
+    final currentValue = stat(attribute);
+    updatedStats[attribute] = currentValue >= 100 ? 100 : currentValue + 1;
     return SuperHero(
       id: id,
       name: name,
@@ -78,13 +79,15 @@ class SuperHero {
 
 extension HeroModelMapper on HeroModel {
   SuperHero toSuperHero() {
+    int normalizeStat(int? value) => (value ?? 0).clamp(0, 100);
+
     final stats = <HeroStat, int>{
-      HeroStat.intelligence: powerstats['intelligence'] ?? 0,
-      HeroStat.strength: powerstats['strength'] ?? 0,
-      HeroStat.speed: powerstats['speed'] ?? 0,
-      HeroStat.durability: powerstats['durability'] ?? 0,
-      HeroStat.power: powerstats['power'] ?? 0,
-      HeroStat.combat: powerstats['combat'] ?? 0,
+      HeroStat.intelligence: normalizeStat(powerstats['intelligence']),
+      HeroStat.strength: normalizeStat(powerstats['strength']),
+      HeroStat.speed: normalizeStat(powerstats['speed']),
+      HeroStat.durability: normalizeStat(powerstats['durability']),
+      HeroStat.power: normalizeStat(powerstats['power']),
+      HeroStat.combat: normalizeStat(powerstats['combat']),
     };
 
     return SuperHero(

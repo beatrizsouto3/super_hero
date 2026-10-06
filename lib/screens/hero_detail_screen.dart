@@ -39,8 +39,6 @@ class HeroDetailScreen extends StatelessWidget {
                     style: Theme.of(context).textTheme.headlineSmall
                         ?.copyWith(fontWeight: FontWeight.bold),
                   ),
-                  const SizedBox(height: 4),
-                  Text(hero.realName),
                 ],
               ),
             ),
@@ -48,25 +46,7 @@ class HeroDetailScreen extends StatelessWidget {
           SliverPadding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
             sliver: SliverToBoxAdapter(
-              child: _InfoCard(title: 'Perfil', values: hero.biography),
-            ),
-          ),
-          SliverPadding(
-            padding: const EdgeInsets.fromLTRB(20, 18, 20, 0),
-            sliver: SliverToBoxAdapter(
-              child: _InfoCard(title: 'Appearance', values: hero.appearance),
-            ),
-          ),
-          SliverPadding(
-            padding: const EdgeInsets.fromLTRB(20, 18, 20, 0),
-            sliver: SliverToBoxAdapter(
-              child: _InfoCard(title: 'Work', values: hero.work),
-            ),
-          ),
-          SliverPadding(
-            padding: const EdgeInsets.fromLTRB(20, 18, 20, 0),
-            sliver: SliverToBoxAdapter(
-              child: _InfoCard(title: 'Connections', values: hero.connections),
+              child: _InfoCard(title: 'Perfil', values: _profileValues),
             ),
           ),
           SliverPadding(
@@ -78,7 +58,7 @@ class HeroDetailScreen extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const SectionTitle('Powerstats'),
+                      const SectionTitle('Atributos de Poder'),
                       StatBars(hero: hero),
                     ],
                   ),
@@ -100,6 +80,22 @@ class HeroDetailScreen extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  Map<String, String> get _profileValues => <String, String>{
+    'Nome': hero.name,
+    'ID': '${hero.id}',
+    'Raça': _appearanceValue('race'),
+    'Gênero': _appearanceValue('gender'),
+    'Altura': _appearanceValue('height'),
+    'Peso': _appearanceValue('weight'),
+  };
+
+  String _appearanceValue(String key) {
+    final entry = hero.appearance.entries.where(
+      (entry) => entry.key.toLowerCase() == key,
+    );
+    return entry.isEmpty ? '-' : entry.first.value;
   }
 
   Future<void> _confirmDismiss(BuildContext context) async {
@@ -144,9 +140,14 @@ class _InfoCard extends StatelessWidget {
                 child: Row(
                   children: [
                     Expanded(child: Text(entry.key)),
-                    Text(
-                      entry.value,
-                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    Expanded(
+                      flex: 2,
+                      child: Text(
+                        entry.value,
+                        softWrap: true,
+                        textAlign: TextAlign.end,
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
                     ),
                   ],
                 ),

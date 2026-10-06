@@ -38,13 +38,69 @@ class HeroLocalDatabase {
     await database.transaction((transaction) async {
       final batch = transaction.batch();
       for (final hero in heroes) {
+        final payload = Map<String, dynamic>.from(hero.toJson());
+        final cachedRows = await transaction.query(
+          'heroes',
+          columns: ['payload'],
+          where: 'id = ?',
+          whereArgs: [hero.id],
+          limit: 1,
+        );
+        if (cachedRows.isNotEmpty) {
+          final cachedPayload = Map<String, dynamic>.from(
+            jsonDecode(cachedRows.first['payload']! as String) as Map,
+          );
+          final incomingStats = Map<String, dynamic>.from(
+            payload['powerstats'] as Map<dynamic, dynamic>,
+          );
+          final cachedStats = Map<String, dynamic>.from(
+            cachedPayload['powerstats'] as Map<dynamic, dynamic>,
+          );
+          for (final entry in cachedStats.entries) {
+            final cachedValue = entry.value as num?;
+            final incomingValue = incomingStats[entry.key] as num?;
+            if (cachedValue != null &&
+                (incomingValue == null || cachedValue > incomingValue)) {
+              incomingStats[entry.key] = cachedValue;
+            }
+          }
+          payload['powerstats'] = incomingStats;
+        }
         batch.insert('heroes', {
           'id': hero.id,
-          'payload': jsonEncode(hero.toJson()),
+          'payload': jsonEncode(payload),
         }, conflictAlgorithm: ConflictAlgorithm.replace);
       }
       await batch.commit(noResult: true);
     });
+  }
+
+  Future<void> updateHeroStat(int id, String stat) async {
+    final database = await _getDatabase();
+    final rows = await database.query(
+      'heroes',
+      where: 'id = ?',
+      whereArgs: [id],
+      limit: 1,
+    );
+    if (rows.isEmpty) return;
+
+    final payload = Map<String, dynamic>.from(
+      jsonDecode(rows.first['payload']! as String) as Map,
+    );
+    final powerstats = Map<String, dynamic>.from(
+      payload['powerstats'] as Map<dynamic, dynamic>,
+    );
+    final current = powerstats[stat] as num?;
+    powerstats[stat] = (current ?? 0) >= 100 ? 100 : (current ?? 0) + 1;
+    payload['powerstats'] = powerstats;
+
+    await database.update(
+      'heroes',
+      {'payload': jsonEncode(payload)},
+      where: 'id = ?',
+      whereArgs: [id],
+    );
   }
 
   Future<Set<int>> getSquadIds() async {

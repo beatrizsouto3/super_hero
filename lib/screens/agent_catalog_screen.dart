@@ -29,17 +29,14 @@ class _AgentCatalogScreenState extends State<AgentCatalogScreen> {
       );
 
   Future<List<SuperHero>> _fetchPage(int pageKey) async {
-    final allHeroes = context
-        .read<CatalogProvider>()
-        .heroes
-        .map((hero) => hero.toSuperHero())
+    final heroes = widget.appData.heroes
         .where((hero) => hero.name.toLowerCase().contains(query.toLowerCase()))
         .toList();
     const pageSize = 20;
     final start = (pageKey - 1) * pageSize;
-    if (start >= allHeroes.length) return <SuperHero>[];
-    final end = (start + pageSize).clamp(0, allHeroes.length);
-    return allHeroes.sublist(start, end);
+    if (start >= heroes.length) return <SuperHero>[];
+    final end = (start + pageSize).clamp(0, heroes.length);
+    return heroes.sublist(start, end);
   }
 
   @override

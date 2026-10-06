@@ -1,6 +1,6 @@
 # Super Hero
 
-Aplicativo Flutter com catálogo carregado pela API local em `api/`.
+Aplicativo Flutter com catálogo carregado pela API hospedada no Render.
 
 ## Rodar a API
 
@@ -13,7 +13,15 @@ npm start
 
 ## Conectar o aplicativo
 
-No emulador Android, a URL padrão já está configurada:
+Por padrão, o app usa a API publicada:
+
+```text
+https://super-hero-api-lvx2.onrender.com
+```
+
+Para sobrescrever a URL em outro ambiente, use `API_BASE_URL`.
+
+Para usar a API local no emulador Android, informe:
 
 ```text
 http://10.0.2.2:3000
@@ -41,11 +49,15 @@ a porta `3000`.
 
 ## API publicada
 
-Quando a API estiver no Render, execute o Flutter usando a URL pública:
+Quando quiser informar explicitamente a API publicada, execute o Flutter usando
+a URL pública:
 
 ```bash
-flutter run --dart-define=API_BASE_URL=https://SUA-API.onrender.com
+flutter run --dart-define=API_BASE_URL=https://super-hero-api-lvx2.onrender.com
 ```
 
-A URL não fica fixa no código; a configuração padrão continua apontando para o
-emulador Android local.
+Para voltar a usar a API local no emulador Android, informe explicitamente:
+
+```bash
+flutter run --dart-define=API_BASE_URL=http://10.0.2.2:3000
+```

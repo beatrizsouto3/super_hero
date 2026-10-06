@@ -11,21 +11,28 @@ Future<void> main() async {
   runApp(
     MultiProvider(
       providers: data.providers,
-      child: SuperHeroApp(appData: data.appData),
+      child: SuperHeroApp(appData: data.appData, onDispose: data.dispose),
     ),
   );
 }
 
 class SuperHeroApp extends StatefulWidget {
-  const SuperHeroApp({super.key, required this.appData});
+  const SuperHeroApp({super.key, required this.appData, this.onDispose});
 
   final AppData appData;
+  final VoidCallback? onDispose;
 
   @override
   State<SuperHeroApp> createState() => _SuperHeroAppState();
 }
 
 class _SuperHeroAppState extends State<SuperHeroApp> {
+  @override
+  void dispose() {
+    widget.onDispose?.call();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(

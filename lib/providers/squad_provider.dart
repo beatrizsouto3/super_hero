@@ -1,29 +1,45 @@
 import 'package:flutter/foundation.dart';
 
 import '../app/app_data.dart';
+import '../database/hero_local_database.dart';
 import '../models/super_hero.dart';
 
 /// Estado reativo do esquadrão, seguindo o padrão ChangeNotifier apresentado
 /// nas aulas de Provider.
 class SquadProvider extends ChangeNotifier {
-  SquadProvider({required this.appData});
+  SquadProvider({required this.appData, this.database});
 
   final AppData appData;
+  final HeroLocalDatabase? database;
+  final Set<int> _squadIds = <int>{};
 
   List<SuperHero> get heroes => appData.heroes;
-  List<SuperHero> get squad => appData.squad;
-  bool get squadIsFull => appData.squadIsFull;
+  List<SuperHero> get squad => appData.heroes
+      .where((hero) => _squadIds.contains(hero.id))
+      .toList(growable: false);
+  bool get squadIsFull => _squadIds.length >= AppData.squadLimit;
 
-  bool isRecruited(int id) => appData.isRecruited(id);
+  bool isRecruited(int id) => _squadIds.contains(id);
+
+  Future<void> load() async {
+    final ids = await database?.getSquadIds();
+    if (ids == null) return;
+    _squadIds
+      ..clear()
+      ..addAll(ids.where((id) => appData.heroById(id) != null));
+    notifyListeners();
+  }
 
   Future<bool> recruit(int id) async {
-    final recruited = await appData.recruit(id);
+    if (squadIsFull || appData.heroById(id) == null) return false;
+    final recruited = _squadIds.add(id);
+    if (recruited) await database?.saveSquadIds(_squadIds);
     if (recruited) notifyListeners();
     return recruited;
   }
 
   Future<void> dismiss(int id) async {
-    await appData.dismiss(id);
+    if (_squadIds.remove(id)) await database?.saveSquadIds(_squadIds);
     notifyListeners();
   }
 

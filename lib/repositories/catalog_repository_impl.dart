@@ -19,7 +19,14 @@ class CatalogRepositoryImpl implements CatalogRepository {
       await database.saveHeroes(heroes);
       return heroes;
     } catch (_) {
-      return database.getHeroes();
+      final cachedHeroes = await database.getHeroes();
+      if (cachedHeroes.isEmpty) {
+        throw Exception(
+          'Não foi possível carregar os agentes. Conecte-se à internet '
+          'para fazer o primeiro carregamento.',
+        );
+      }
+      return cachedHeroes;
     }
   }
 
@@ -41,6 +48,5 @@ class CatalogRepositoryImpl implements CatalogRepository {
   @override
   void dispose() {
     api.dispose();
-    database.dispose();
   }
 }

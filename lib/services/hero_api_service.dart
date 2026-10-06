@@ -10,12 +10,13 @@ class HeroApiService {
 
   final String baseUrl;
   final http.Client _client;
+  static const Duration requestTimeout = Duration(seconds: 10);
 
   Future<List<HeroModel>> fetchHeroes({int page = 1, int limit = 1000}) async {
     final uri = _heroesUri(
       queryParameters: <String, String>{'_page': '$page', '_limit': '$limit'},
     );
-    final response = await _client.get(uri);
+    final response = await _client.get(uri).timeout(requestTimeout);
 
     _ensureSuccess(response, uri);
     final decoded = jsonDecode(response.body);
@@ -34,7 +35,7 @@ class HeroApiService {
 
   Future<HeroModel> fetchHeroById(int id) async {
     final uri = _heroesUri(pathSuffix: '/$id');
-    final response = await _client.get(uri);
+    final response = await _client.get(uri).timeout(requestTimeout);
 
     _ensureSuccess(response, uri);
     final decoded = jsonDecode(response.body);

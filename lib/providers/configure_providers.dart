@@ -28,25 +28,30 @@ class ConfigureProviders {
   final DailyContractProvider dailyContractProvider;
   final MissionProvider missionProvider;
 
+  void dispose() {
+    dailyContractProvider.dispose();
+    catalogProvider.dispose();
+    appData.dispose();
+  }
+
   static Future<ConfigureProviders> createDependencyTree() async {
     final api = HeroApiService(baseUrl: ApiConfig.baseUrl);
-    final repository = CatalogRepositoryImpl(
-      api: api,
-      database: HeroLocalDatabase(),
-    );
+    final database = HeroLocalDatabase();
+    final repository = CatalogRepositoryImpl(api: api, database: database);
     final catalogProvider = CatalogProvider(repository: repository);
     await catalogProvider.loadHeroes();
     final appData = AppData.fromModels(
       catalogProvider.heroes,
-      database: HeroLocalDatabase(),
+      database: database,
     );
-    await appData.loadPersistedSquad();
-    await appData.loadPersistedDailyContract();
-    final squadProvider = SquadProvider(appData: appData);
+    final squadProvider = SquadProvider(appData: appData, database: database);
+    await squadProvider.load();
     final dailyContractProvider = DailyContractProvider(
       appData: appData,
       squadProvider: squadProvider,
+      database: database,
     );
+    await dailyContractProvider.load();
     final missionProvider = MissionProvider(
       appData: appData,
       squadProvider: squadProvider,

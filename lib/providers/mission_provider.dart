@@ -49,6 +49,7 @@ class MissionProvider extends ChangeNotifier {
   bool _finished = false;
   SuperHero? _rewardHero;
   HeroStat? _rewardAttribute;
+  SuperHero? _lastEnemy;
 
   bool get started => _started;
   bool get finished => _finished;
@@ -64,6 +65,7 @@ class MissionProvider extends ChangeNotifier {
   int? get selectedHeroId => _selectedHeroId;
   SuperHero? get rewardHero => _rewardHero;
   HeroStat? get rewardAttribute => _rewardAttribute;
+  SuperHero? get lastEnemy => _lastEnemy;
   List<SuperHero> get availableAgents => squadProvider.squad
       .where((hero) => !_usedHeroIds.contains(hero.id))
       .toList(growable: false);
@@ -73,6 +75,7 @@ class MissionProvider extends ChangeNotifier {
     final enemyPool = appData.heroes
         .where((hero) => !squadProvider.isRecruited(hero.id))
         .toList();
+    if (enemyPool.isEmpty) return;
     final amount = 3 + _random.nextInt(3);
     _rounds = List<MissionRound>.generate(
       amount,
@@ -90,6 +93,7 @@ class MissionProvider extends ChangeNotifier {
     _selectedHeroId = null;
     _rewardHero = null;
     _rewardAttribute = null;
+    _lastEnemy = null;
     _started = true;
     _finished = false;
     notifyListeners();
@@ -111,6 +115,7 @@ class MissionProvider extends ChangeNotifier {
 
     final agentScore = selected.stat(round.attribute);
     final enemyScore = round.enemy.stat(round.attribute);
+    _lastEnemy = round.enemy;
     _usedHeroIds.add(selected.id);
     late String title;
     late String message;
@@ -137,7 +142,7 @@ class MissionProvider extends ChangeNotifier {
     _roundIndex++;
     _selectedHeroId = null;
     final finished = _roundIndex >= _rounds.length;
-    if (finished) _finishReward();
+    if (finished) await _finishReward();
     _finished = finished;
     notifyListeners();
 
@@ -157,12 +162,12 @@ class MissionProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void _finishReward() {
+  Future<void> _finishReward() async {
     if (_victories <= _defeats || _winningHeroIds.isEmpty) return;
     final winnerId = _winningHeroIds[_random.nextInt(_winningHeroIds.length)];
     _rewardHero = appData.heroById(winnerId);
     _rewardAttribute = HeroStat.values[_random.nextInt(HeroStat.values.length)];
-    appData.improveHero(winnerId, _rewardAttribute!);
+    await appData.improveHero(winnerId, _rewardAttribute!);
     squadProvider.refresh();
   }
 }

@@ -4,7 +4,6 @@ import 'package:provider/provider.dart';
 import '../app/app_data.dart';
 import '../providers/daily_contract_provider.dart';
 import '../widgets/hero_widgets.dart';
-import 'hero_detail_screen.dart';
 
 class DailyContractScreen extends StatefulWidget {
   const DailyContractScreen({super.key, required this.appData, this.onChanged});
@@ -21,6 +20,22 @@ class _DailyContractScreenState extends State<DailyContractScreen> {
   Widget build(BuildContext context) {
     return Consumer<DailyContractProvider>(
       builder: (context, contract, _) {
+        if (widget.appData.heroes.isEmpty) {
+          return Scaffold(
+            appBar: AppBar(title: const Text('Contrato Diário')),
+            body: const Center(
+              child: Padding(
+                padding: EdgeInsets.all(24),
+                child: Text(
+                  'Nenhum agente disponível. Conecte-se à internet para '
+                  'carregar o catálogo pela primeira vez.',
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            ),
+          );
+        }
+
         final hero = contract.dailyHero;
         final recruited = contract.isRecruited(hero.id);
         final full = contract.squadIsFull;
@@ -51,7 +66,6 @@ class _DailyContractScreenState extends State<DailyContractScreen> {
                         hero.name,
                         style: Theme.of(context).textTheme.headlineSmall,
                       ),
-                      Text(hero.publisher),
                       const SizedBox(height: 20),
                       StatBars(hero: hero),
                       const SizedBox(height: 18),
@@ -70,18 +84,6 @@ class _DailyContractScreenState extends State<DailyContractScreen> {
                                 : 'Recrutar para o Esquadrão',
                           ),
                         ),
-                      ),
-                      TextButton(
-                        onPressed: () => Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => HeroDetailScreen(
-                              hero: hero,
-                              appData: widget.appData,
-                            ),
-                          ),
-                        ),
-                        child: const Text('Ver detalhes do agente'),
                       ),
                     ],
                   ),
