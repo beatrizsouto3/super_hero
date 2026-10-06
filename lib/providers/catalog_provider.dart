@@ -17,11 +17,25 @@ class CatalogProvider extends ChangeNotifier {
 
   Future<void> loadHeroes({int page = 1, int limit = 1000}) async {
     _loading = true;
+    _heroes = <HeroModel>[];
     notifyListeners();
 
     try {
-      final heroes = await repository.getHeroes(page: page, limit: limit);
-      _heroes = List<HeroModel>.from(heroes);
+      // O catálogo é carregado em páginas reais da API. Além de evitar uma
+      // resposta excessivamente grande, isso mantém cada página no cache e
+      // permite reconstruir o catálogo inteiro quando estiver offline.
+      const pageSize = 20;
+      var currentPage = page;
+      while (true) {
+        final heroes = await repository.getHeroes(
+          page: currentPage,
+          limit: limit == 1000 ? pageSize : limit,
+        );
+        _heroes.addAll(heroes);
+        notifyListeners();
+        if (heroes.length < (limit == 1000 ? pageSize : limit)) break;
+        currentPage++;
+      }
       _error = null;
     } catch (error) {
       _error = error.toString();

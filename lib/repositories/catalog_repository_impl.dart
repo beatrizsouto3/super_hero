@@ -26,7 +26,10 @@ class CatalogRepositoryImpl implements CatalogRepository {
           'para fazer o primeiro carregamento.',
         );
       }
-      return cachedHeroes;
+      final start = (page - 1) * limit;
+      if (start >= cachedHeroes.length) return <HeroModel>[];
+      final end = (start + limit).clamp(0, cachedHeroes.length);
+      return cachedHeroes.sublist(start, end);
     }
   }
 
