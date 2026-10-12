@@ -1,3 +1,7 @@
+import 'package:freezed_annotation/freezed_annotation.dart';
+
+part 'super_hero.freezed.dart';
+
 enum HeroStat { intelligence, strength, speed, durability, power, combat }
 
 extension HeroStatExtension on HeroStat {
@@ -19,32 +23,23 @@ extension HeroStatExtension on HeroStat {
   }
 }
 
-class SuperHero {
-  SuperHero({
-    required this.id,
-    required this.name,
-    required this.realName,
-    required this.publisher,
-    required this.alignment,
-    required this.imageUrl,
-    required this.stats,
-    required this.appearance,
-    required this.biography,
-    this.work = const <String, String>{},
-    this.connections = const <String, String>{},
-  });
+@Freezed(makeCollectionsUnmodifiable: false)
+abstract class SuperHero with _$SuperHero {
+  const SuperHero._();
 
-  final int id;
-  final String name;
-  final String realName;
-  final String publisher;
-  final String alignment;
-  final String imageUrl;
-  final Map<HeroStat, int> stats;
-  final Map<String, String> appearance;
-  final Map<String, String> biography;
-  final Map<String, String> work;
-  final Map<String, String> connections;
+  const factory SuperHero({
+    required int id,
+    required String name,
+    required String realName,
+    required String publisher,
+    required String alignment,
+    required String imageUrl,
+    required Map<HeroStat, int> stats,
+    required Map<String, String> appearance,
+    required Map<String, String> biography,
+    @Default(<String, String>{}) Map<String, String> work,
+    @Default(<String, String>{}) Map<String, String> connections,
+  }) = _SuperHero;
 
   int stat(HeroStat attribute) => stats[attribute] ?? 0;
 
@@ -59,18 +54,6 @@ class SuperHero {
     final updatedStats = Map<HeroStat, int>.from(stats);
     final currentValue = stat(attribute);
     updatedStats[attribute] = currentValue >= 100 ? 100 : currentValue + 1;
-    return SuperHero(
-      id: id,
-      name: name,
-      realName: realName,
-      publisher: publisher,
-      alignment: alignment,
-      imageUrl: imageUrl,
-      stats: updatedStats,
-      appearance: appearance,
-      biography: biography,
-      work: work,
-      connections: connections,
-    );
+    return copyWith(stats: updatedStats);
   }
 }
