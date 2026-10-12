@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:awesome_dialog/awesome_dialog.dart';
 
-import '../app/app_data.dart';
-import '../models/super_hero.dart';
-import '../providers/mission_provider.dart';
-import '../widgets/hero_widgets.dart';
+import 'package:super_hero/app/app_data.dart';
+import 'package:super_hero/domain/models/super_hero.dart';
+import 'package:super_hero/app/providers/mission_provider.dart';
+import 'package:super_hero/ui/widgets/hero_widgets.dart';
 
 class MissionScreen extends StatelessWidget {
   const MissionScreen({super.key, required this.appData});
@@ -71,6 +71,13 @@ class _RoundView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final round = mission.currentRound!;
+    final availableAgents = mission.availableAgents;
+    final bestRoundScore = availableAgents.fold<int>(
+      0,
+      (highest, hero) => hero.stat(round.attribute) > highest
+          ? hero.stat(round.attribute)
+          : highest,
+    );
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -89,7 +96,10 @@ class _RoundView extends StatelessWidget {
           Center(child: HeroAvatar(hero: round.enemy, radius: 48)),
           Center(child: Text(round.enemy.name)),
           const SizedBox(height: 16),
-          Text('Atributo em disputa: ${round.attribute.label}'),
+          Text(
+            'Atributo em disputa: ${round.attribute.label} '
+            '• Vilão: ${round.enemy.stat(round.attribute)}',
+          ),
           const SizedBox(height: 20),
           const Text('Escolha seu agente'),
           const SizedBox(height: 10),
@@ -97,32 +107,64 @@ class _RoundView extends StatelessWidget {
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 3,
+              crossAxisCount: 2,
               mainAxisSpacing: 8,
               crossAxisSpacing: 8,
-              childAspectRatio: .85,
+              childAspectRatio: 1.2,
             ),
-            itemCount: mission.availableAgents.length,
+            itemCount: availableAgents.length,
             itemBuilder: (context, index) {
-              final hero = mission.availableAgents[index];
+              final hero = availableAgents[index];
               final selected = mission.selectedHeroId == hero.id;
+              final bestStat = HeroStat.values.reduce(
+                (best, stat) => hero.stat(stat) > hero.stat(best) ? stat : best,
+              );
+              final roundScore = hero.stat(round.attribute);
+              final isBestRoundChoice = roundScore == bestRoundScore;
+              final highlightColor = Theme.of(context).colorScheme.primary;
               return OutlinedButton(
                 style: OutlinedButton.styleFrom(
                   side: BorderSide(
                     color: selected
-                        ? Theme.of(context).colorScheme.primary
+                        ? highlightColor
+                        : isBestRoundChoice
+                        ? highlightColor
                         : Colors.grey,
-                    width: selected ? 2 : 1,
+                    width: selected || isBestRoundChoice ? 2 : 1,
                   ),
-                  padding: const EdgeInsets.all(6),
+                  padding: const EdgeInsets.all(8),
                 ),
                 onPressed: () => mission.selectHero(hero.id),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    HeroAvatar(hero: hero, radius: 26),
-                    const SizedBox(height: 4),
-                    Text(hero.name, overflow: TextOverflow.ellipsis),
+                    HeroAvatar(hero: hero, radius: 24),
+                    const SizedBox(height: 5),
+                    Text(
+                      hero.name,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(fontWeight: FontWeight.w600),
+                    ),
+                    const SizedBox(height: 3),
+                    Text(
+                      'Melhor: ${bestStat.label} ${hero.stat(bestStat)}',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.labelSmall,
+                    ),
+                    Text(
+                      '${round.attribute.label}: $roundScore'
+                      '${isBestRoundChoice ? ' • maior' : ''}',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                        color: isBestRoundChoice ? highlightColor : null,
+                        fontWeight: isBestRoundChoice
+                            ? FontWeight.bold
+                            : FontWeight.normal,
+                      ),
+                    ),
                   ],
                 ),
               );

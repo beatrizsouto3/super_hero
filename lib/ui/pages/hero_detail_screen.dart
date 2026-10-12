@@ -2,10 +2,10 @@ import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../app/app_data.dart';
-import '../models/super_hero.dart';
-import '../providers/squad_provider.dart';
-import '../widgets/hero_widgets.dart';
+import 'package:super_hero/app/app_data.dart';
+import 'package:super_hero/domain/models/super_hero.dart';
+import 'package:super_hero/app/providers/squad_provider.dart';
+import 'package:super_hero/ui/widgets/hero_widgets.dart';
 
 class HeroDetailScreen extends StatelessWidget {
   const HeroDetailScreen({

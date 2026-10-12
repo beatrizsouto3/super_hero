@@ -1,11 +1,12 @@
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:super_hero/app/app_data.dart';
-import 'package:super_hero/models/hero_model.dart';
-import 'package:super_hero/models/super_hero.dart';
-import 'package:super_hero/providers/daily_contract_provider.dart';
-import 'package:super_hero/providers/mission_provider.dart';
-import 'package:super_hero/providers/squad_provider.dart';
+import 'package:super_hero/data/models/hero_model.dart';
+import 'package:super_hero/data/mappers/hero_model_mapper.dart';
+import 'package:super_hero/domain/models/super_hero.dart';
+import 'package:super_hero/app/providers/daily_contract_provider.dart';
+import 'package:super_hero/app/providers/mission_provider.dart';
+import 'package:super_hero/app/providers/squad_provider.dart';
 
 void main() {
   test('recruta e dispensa um agente do esquadrão', () async {

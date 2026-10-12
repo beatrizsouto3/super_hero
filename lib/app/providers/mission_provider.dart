@@ -2,8 +2,9 @@ import 'dart:math';
 
 import 'package:flutter/foundation.dart';
 
-import '../app/app_data.dart';
-import '../models/super_hero.dart';
+import 'package:super_hero/app/app_data.dart';
+import 'package:super_hero/domain/models/super_hero.dart';
+
 import 'squad_provider.dart';
 
 class MissionRound {
@@ -53,6 +54,8 @@ class MissionProvider extends ChangeNotifier {
 
   bool get started => _started;
   bool get finished => _finished;
+
+  void catalogUpdated() => notifyListeners();
   List<MissionRound> get rounds => List.unmodifiable(_rounds);
   MissionRound? get currentRound =>
       _rounds.isEmpty || _roundIndex >= _rounds.length

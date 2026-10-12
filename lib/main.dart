@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import 'app/app_data.dart';
-import 'providers/configure_providers.dart';
-import 'screens/home_screen.dart';
+import 'package:super_hero/app/app_data.dart';
+
+import 'core/di/configure_providers.dart';
+
+import 'package:super_hero/ui/pages/home_screen.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();

@@ -1,6 +1,7 @@
-import '../database/hero_local_database.dart';
-import '../models/hero_model.dart';
-import '../models/super_hero.dart';
+import 'package:super_hero/data/database/hero_local_database.dart';
+import 'package:super_hero/data/models/hero_model.dart';
+import 'package:super_hero/data/mappers/hero_model_mapper.dart';
+import 'package:super_hero/domain/models/super_hero.dart';
 
 class AppData {
   AppData(this._heroes, [this._database]);
@@ -16,12 +17,83 @@ class AppData {
   );
 
   static const int squadLimit = 15;
-  // Intervalo reduzido para facilitar os testes e a demonstração em aula.
-  // Na versão de entrega, voltar para Duration(days: 1).
+  // Mantido em 10 segundos para facilitar a demonstração ao professor.
+  // Essa decisão é intencional para a apresentação do trabalho.
   static const Duration contractInterval = Duration(seconds: 10);
   final List<SuperHero> _heroes;
   final HeroLocalDatabase? _database;
   List<SuperHero> get heroes => List.unmodifiable(_heroes);
+
+  /// Atualiza a coleção de domínio a partir dos modelos carregados pelo
+  /// Repository. Os atributos evoluídos localmente são preservados para que
+  /// um novo carregamento da API não apague recompensas de missão.
+  void replaceHeroes(List<SuperHero> heroes) {
+    final currentById = <int, SuperHero>{
+      for (final hero in _heroes) hero.id: hero,
+    };
+
+    _heroes
+      ..clear()
+      ..addAll(
+        heroes.map((incoming) {
+          final current = currentById[incoming.id];
+          if (current == null) return incoming;
+
+          final mergedStats = <HeroStat, int>{
+            for (final attribute in HeroStat.values)
+              attribute: current.stat(attribute) > incoming.stat(attribute)
+                  ? current.stat(attribute)
+                  : incoming.stat(attribute),
+          };
+
+          return SuperHero(
+            id: incoming.id,
+            name: incoming.name,
+            realName: incoming.realName,
+            publisher: incoming.publisher,
+            alignment: incoming.alignment,
+            imageUrl: incoming.imageUrl,
+            stats: mergedStats,
+            appearance: incoming.appearance,
+            biography: incoming.biography,
+            work: incoming.work,
+            connections: incoming.connections,
+          );
+        }),
+      );
+  }
+
+  /// Acrescenta uma página do catálogo sem remover páginas já carregadas.
+  void addHeroes(List<SuperHero> heroes) {
+    for (final incoming in heroes) {
+      final index = _heroes.indexWhere((hero) => hero.id == incoming.id);
+      if (index == -1) {
+        _heroes.add(incoming);
+        continue;
+      }
+
+      final current = _heroes[index];
+      final mergedStats = <HeroStat, int>{
+        for (final attribute in HeroStat.values)
+          attribute: current.stat(attribute) > incoming.stat(attribute)
+              ? current.stat(attribute)
+              : incoming.stat(attribute),
+      };
+      _heroes[index] = SuperHero(
+        id: incoming.id,
+        name: incoming.name,
+        realName: incoming.realName,
+        publisher: incoming.publisher,
+        alignment: incoming.alignment,
+        imageUrl: incoming.imageUrl,
+        stats: mergedStats,
+        appearance: incoming.appearance,
+        biography: incoming.biography,
+        work: incoming.work,
+        connections: incoming.connections,
+      );
+    }
+  }
 
   SuperHero? heroById(int id) {
     for (final hero in _heroes) {

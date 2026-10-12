@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../app/app_data.dart';
+import 'package:super_hero/app/app_data.dart';
+
 import 'agent_catalog_screen.dart';
 import 'daily_contract_screen.dart';
 import 'mission_screen.dart';
@@ -13,32 +14,11 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
     return Scaffold(
       appBar: AppBar(title: const Text('Super Hero')),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
         children: [
-          Text(
-            'Central de agentes',
-            style: theme.textTheme.headlineSmall?.copyWith(
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            'Escolha uma operação para continuar.',
-            style: theme.textTheme.bodyMedium,
-          ),
-          const SizedBox(height: 20),
-          Text(
-            'Operações',
-            style: theme.textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 12),
           GridView.count(
             crossAxisCount: 2,
             shrinkWrap: true,
@@ -50,8 +30,7 @@ class HomeScreen extends StatelessWidget {
               _OperationButton(
                 icon: Icons.groups_outlined,
                 label: 'Agentes',
-                onPressed: () =>
-                    _open(context, AgentCatalogScreen(appData: appData)),
+                onPressed: () => _open(context, const AgentCatalogScreen()),
               ),
               _OperationButton(
                 icon: Icons.person_add_alt_1,

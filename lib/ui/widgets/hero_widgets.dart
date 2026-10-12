@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:primer_progress_bar/primer_progress_bar.dart';
 
-import '../models/super_hero.dart';
+import 'package:super_hero/domain/models/super_hero.dart';
 
 class HeroAvatar extends StatelessWidget {
   const HeroAvatar({super.key, required this.hero, this.radius = 32});

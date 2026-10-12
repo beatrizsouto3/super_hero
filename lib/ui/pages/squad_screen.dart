@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../app/app_data.dart';
-import '../providers/squad_provider.dart';
-import '../widgets/hero_widgets.dart';
+import 'package:super_hero/app/app_data.dart';
+import 'package:super_hero/app/providers/squad_provider.dart';
+import 'package:super_hero/ui/widgets/hero_widgets.dart';
+
 import 'hero_detail_screen.dart';
 
 class SquadScreen extends StatefulWidget {

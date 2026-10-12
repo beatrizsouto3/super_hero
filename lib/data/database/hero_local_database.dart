@@ -3,13 +3,16 @@ import 'dart:convert';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 
-import '../models/hero_model.dart';
+import 'package:super_hero/data/models/hero_model.dart';
 
 class HeroLocalDatabase {
   Future<Database>? _database;
 
   Future<List<HeroModel>> getHeroes() async {
-    final rows = await (await _getDatabase()).query('heroes');
+    final rows = await (await _getDatabase()).query(
+      'heroes',
+      orderBy: 'id ASC',
+    );
     return rows
         .map(
           (row) => HeroModel.fromJson(

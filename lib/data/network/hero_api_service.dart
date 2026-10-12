@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 
-import '../models/hero_model.dart';
+import 'package:super_hero/data/models/hero_model.dart';
 
 class HeroApiService {
   HeroApiService({required this.baseUrl, http.Client? client})
@@ -12,10 +12,19 @@ class HeroApiService {
   final http.Client _client;
   static const Duration requestTimeout = Duration(seconds: 10);
 
-  Future<List<HeroModel>> fetchHeroes({int page = 1, int limit = 1000}) async {
-    final uri = _heroesUri(
-      queryParameters: <String, String>{'_page': '$page', '_limit': '$limit'},
-    );
+  Future<List<HeroModel>> fetchHeroes({
+    int page = 1,
+    int limit = 1000,
+    String query = '',
+  }) async {
+    final queryParameters = <String, String>{
+      '_page': '$page',
+      '_limit': '$limit',
+    };
+    if (query.trim().isNotEmpty) {
+      queryParameters['name_like'] = query.trim();
+    }
+    final uri = _heroesUri(queryParameters: queryParameters);
     final response = await _client.get(uri).timeout(requestTimeout);
 
     _ensureSuccess(response, uri);

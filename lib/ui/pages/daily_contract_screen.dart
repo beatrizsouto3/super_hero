@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../app/app_data.dart';
-import '../providers/daily_contract_provider.dart';
-import '../widgets/hero_widgets.dart';
+import 'package:super_hero/app/app_data.dart';
+import 'package:super_hero/app/providers/daily_contract_provider.dart';
+import 'package:super_hero/ui/widgets/hero_widgets.dart';
 
 class DailyContractScreen extends StatefulWidget {
   const DailyContractScreen({super.key, required this.appData, this.onChanged});
