@@ -12,12 +12,6 @@ import 'package:super_hero/data/repositories/catalog_repository_impl.dart';
 import 'package:super_hero/data/network/api_config.dart';
 import 'package:super_hero/data/network/hero_api_service.dart';
 
-/// Monta as dependências da aplicação antes do runApp.
-///
-/// Este arquivo segue o papel de core/di/configure_providers.dart do exemplo
-/// do professor: cria as fontes de dados e disponibiliza suas instâncias na
-/// árvore do Provider. As telas obtêm o Repository com Provider.of(...,
-/// listen: false), e o PagingController chama o Repository diretamente.
 class ConfigureProviders {
   ConfigureProviders({
     required this.providers,
