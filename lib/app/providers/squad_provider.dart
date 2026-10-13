@@ -4,8 +4,6 @@ import 'package:super_hero/app/app_data.dart';
 import 'package:super_hero/data/database/hero_local_database.dart';
 import 'package:super_hero/domain/models/super_hero.dart';
 
-/// Estado reativo do esquadrão, seguindo o padrão ChangeNotifier apresentado
-/// nas aulas de Provider.
 class SquadProvider extends ChangeNotifier {
   SquadProvider({required this.appData, this.database});
 
