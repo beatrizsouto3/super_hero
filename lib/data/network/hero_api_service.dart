@@ -1,15 +1,24 @@
 import 'dart:convert';
 
-import 'package:http/http.dart' as http;
+import 'package:dio/dio.dart';
 
 import 'package:super_hero/data/models/hero_model.dart';
 
 class HeroApiService {
-  HeroApiService({required this.baseUrl, http.Client? client})
-    : _client = client ?? http.Client();
+  HeroApiService({required this.baseUrl, Dio? dio})
+    : _dio =
+          dio ??
+          Dio(
+            BaseOptions(
+              connectTimeout: requestTimeout,
+              receiveTimeout: requestTimeout,
+              sendTimeout: requestTimeout,
+              responseType: ResponseType.json,
+            ),
+          );
 
   final String baseUrl;
-  final http.Client _client;
+  final Dio _dio;
   static const Duration requestTimeout = Duration(seconds: 10);
 
   Future<List<HeroModel>> fetchHeroes({
@@ -25,10 +34,9 @@ class HeroApiService {
       queryParameters['name_like'] = query.trim();
     }
     final uri = _heroesUri(queryParameters: queryParameters);
-    final response = await _client.get(uri).timeout(requestTimeout);
+    final response = await _dio.getUri<dynamic>(uri);
 
-    _ensureSuccess(response, uri);
-    final decoded = jsonDecode(response.body);
+    final decoded = _decodeResponse(response.data);
     if (decoded is! List) {
       throw const FormatException('A API não retornou uma lista de heróis.');
     }
@@ -44,10 +52,9 @@ class HeroApiService {
 
   Future<HeroModel> fetchHeroById(int id) async {
     final uri = _heroesUri(pathSuffix: '/$id');
-    final response = await _client.get(uri).timeout(requestTimeout);
+    final response = await _dio.getUri<dynamic>(uri);
 
-    _ensureSuccess(response, uri);
-    final decoded = jsonDecode(response.body);
+    final decoded = _decodeResponse(response.data);
     if (decoded is! Map) {
       throw const FormatException('A API não retornou um herói.');
     }
@@ -55,7 +62,10 @@ class HeroApiService {
     return HeroModel.fromJson(Map<String, dynamic>.from(decoded));
   }
 
-  void dispose() => _client.close();
+  void dispose() => _dio.close(force: true);
+
+  dynamic _decodeResponse(dynamic data) =>
+      data is String ? jsonDecode(data) : data;
 
   Uri _heroesUri({
     String pathSuffix = '',
@@ -66,11 +76,5 @@ class HeroApiService {
         : baseUrl;
     return Uri.parse('$normalizedBaseUrl/heroes$pathSuffix')
         .replace(queryParameters: queryParameters);
-  }
-
-  void _ensureSuccess(http.Response response, Uri uri) {
-    if (response.statusCode < 200 || response.statusCode >= 300) {
-      throw Exception('Falha ao acessar $uri: HTTP ${response.statusCode}.');
-    }
   }
 }
